@@ -11,15 +11,20 @@ pygame.init()
 aken = pygame.display.set_mode((600, 800))
 pygame.display.set_caption("Mäng")
 taust = pygame.image.load("taust.png")
-angry = pygame.image.load("angry.png")
-happy = pygame.image.load("happy.png")
-angry = pygame.transform.scale(angry, (50, 50))
-happy = pygame.transform.scale(happy, (50, 50))
+kollaneViirus = pygame.image.load("kollaneViirus.png")
+oranzViirus = pygame.image.load("oranzViirus.png")
+lillakasViirus = pygame.image.load("lillakasViirus.png")
+maskiPilt = pygame.image.load("maskiPilt.png")
+kollaneViirus = pygame.transform.scale(kollaneViirus, (80, 80))
+oranzViirus = pygame.transform.scale(oranzViirus, (80, 80))
+lillakasViirus = pygame.transform.scale(lillakasViirus, (80, 80))
+maskiPilt = pygame.transform.scale(maskiPilt, (80, 80))
 mehike_paremale = pygame.image.load("mehike.png")
 mehike_paremale = pygame.transform.scale(mehike_paremale, (40, 60))
 mehike_vasakule = pygame.transform.flip(mehike_paremale, True, False)
 font = pygame.font.SysFont('Comic Sans MS', 30)
 kasutav_pilt_mehikesest = mehike_paremale
+mehike_on_paremale = True
 
 näita_algus = True
 näita_mäng = False
@@ -33,14 +38,21 @@ kella_korrigeerija = 0
 eelnevapalli_x = 0
 pallide_lisamise_tik = 0
 jagaja = 0
-käsnakallesi = 0
+maskideArv = 0
 skoor = 0
 
 pallide_kiirus = 2
 kuuli_algus = -70
 kuulid = []
 
-#võtab parameetriks skooride järjendi ja kirjutab need faili igale reale 1 skoor, kahanevasse järjekorda
+import math
+
+
+def kaugus(x1, y1, x2, y2):
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
+# võtab parameetriks skooride järjendi ja kirjutab need faili igale reale 1 skoor, kahanevasse järjekorda
 def kirjuta_skoorid_faili(skoorid):
     skoorid.sort(reverse=True)  # sorteerime kahanevasse järjekorda
     if len(skoorid) > 10:  # kui on rohkem kui 10 skoori, siis võtame ainult top10
@@ -49,7 +61,8 @@ def kirjuta_skoorid_faili(skoorid):
         for skoor in skoorid:
             fail.write(str(skoor) + "\n")
 
-#loeb failist kõik skoorid ja tagstab kahanevasse järjekorda sorteeritud järjendi skooridest
+
+# loeb failist kõik skoorid ja tagstab kahanevasse järjekorda sorteeritud järjendi skooridest
 def loe_skoorid_failist():
     skoorid = []
     with open("skoorid.txt") as fail:
@@ -58,37 +71,37 @@ def loe_skoorid_failist():
     skoorid.sort(reverse=True)  # sorteerime kahanevasse järjekorda
     return skoorid
 
-#võtab parameetriks skoori ja lisab selle skooride faili
+
+# võtab parameetriks skoori ja lisab selle skooride faili
 def uuenda_skoori_faili(lisatav_skoor):
     vanad = loe_skoorid_failist()
     vanad.append(lisatav_skoor)
     kirjuta_skoorid_faili(vanad)
 
 
+def kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec_h, takistus_center_x, takistus_center_y,takistus_radius):
+    # kukkuva objekti kaugus viite erineva punkti kohta mehikesel
+    keskeltÜlevalt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w / 2, mehikese_rec_y)
+    vasakultÜlevalt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x, mehikese_rec_y)
+    paremaltÜlevalt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w, mehikese_rec_y)
+    vasakultKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x, mehikese_rec_y + mehikese_rec_h / 2)
+    paremaltKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w,mehikese_rec_y + mehikese_rec_h / 2)
+    return (keskeltÜlevalt < takistus_radius or vasakultÜlevalt < takistus_radius or paremaltÜlevalt < takistus_radius or paremaltKeskelt < takistus_radius or vasakultKeskelt < takistus_radius)
+
+
 import pygame.camera
 
 pygame.camera.init()
-isCameraFound = len(pygame.camera.list_cameras()) != 0 #Camera detected or not
+isCameraFound = len(pygame.camera.list_cameras()) != 0  # Camera detected or not
 print(f"Leidsin kaamera: {isCameraFound}")
 if isCameraFound:
-    cam = pygame.camera.Camera(0,(640,480))
+    cam = pygame.camera.Camera(0, (640, 480))
     cam.start()
-    pygame.image.save(cam.get_image(),"test.jpg")
-
+    # pygame.image.save(cam.get_image(),"fbi_picture.jpg")
 
 while True:
     hiir_x, hiir_y = pygame.mouse.get_pos()  # hiirepositsioon nuppude vajutamiseks
     aken.blit(taust, [0, 0])  # taustapildi joonistame kõige esimesena igal frameil
-
-
-
-    # igal frameil joonistame uue pildi paremale ülesse nurka
-    if isCameraFound:
-        img = cam.get_image()
-        img = pygame.transform.scale(img, (150, 100))
-        aken.blit(img, (600-150, 0))
-
-
 
     # Alguse menüü------------------------------------------------------------------------------------------------------
     if näita_algus:
@@ -118,7 +131,7 @@ while True:
                 kuulid.clear()
                 mehike_x = 270
                 pallide_lisamise_tik = 0
-                käsnakallesi = 0
+                maskideArv = 0
                 jagaja = 60  # mida väiksemaks läheb, seda raskemaks muutub mäng
                 kella_korrigeerija = pygame.time.get_ticks()  # jätame meelde aja, millal mängu alustati, et saaks aega õigesti arvutada
 
@@ -126,6 +139,20 @@ while True:
     if näita_mäng:
         if mehike_x + mehike_kiirus >= -3 and mehike_x + mehike_kiirus <= 565:  # Ei lase mehikesel aknast välja joosta
             mehike_x += mehike_kiirus
+
+        if mehike_on_paremale:
+            mehikese_rec_x = mehike_x + 7
+            mehikese_rec_y = 660
+            mehikese_rec_w = 40 - 10
+            mehikese_rec_h = 60
+
+        else:
+            mehikese_rec_x = mehike_x + 3
+            mehikese_rec_y = 660
+            mehikese_rec_w = 40 - 10
+            mehikese_rec_h = 60
+
+        # pygame.draw.rect(aken, BLACK, (mehikese_rec_x + 3, mehikese_rec_y, mehikese_rec_w - 10, mehikese_rec_h))
         aken.blit(kasutav_pilt_mehikesest, (mehike_x, 660))
 
         # kuvame kõik pallid ekraanile ja muudame nende y koordinaati järgmise framei jaoks
@@ -133,26 +160,48 @@ while True:
             kuul_pilt = kuulid[i][0]
             kuul_x = kuulid[i][1]
             kuul_y = kuulid[i][2]
+            liik = kuulid[i][3]
+
+            if liik == "kollane":
+                takistus_center_x = kuul_x + 40
+                takistus_center_y = kuul_y + 40
+                takistus_radius = 31
+            if liik == "oranz":
+                takistus_center_x = kuul_x + 40
+                takistus_center_y = kuul_y + 40
+                takistus_radius = 27
+            if liik == "lillakas":
+                takistus_center_x = kuul_x + 40
+                takistus_center_y = kuul_y + 40
+                takistus_radius = 30
+            if liik == "mask":
+                takistus_center_x = kuul_x + 40
+                takistus_center_y = kuul_y + 33
+                takistus_radius = 33
+
+            #pygame.draw.circle(aken, BLACK, (takistus_center_x, takistus_center_y), takistus_radius)
             aken.blit(kuul_pilt, (kuul_x, kuul_y))
-            kuulid[i] = [kuul_pilt, kuul_x, kuul_y + pallide_kiirus]
+
+            kuulid[i] = [kuul_pilt, kuul_x, kuul_y + pallide_kiirus, liik,
+                         (takistus_center_x, takistus_center_y, takistus_radius)]
 
         # kustutame need pallid järjendist
         eemaldusele = []
         for pall in kuulid:
             if pall[2] > 670:  # Kui jõuab maani, siis lisame eemaldusele
                 eemaldusele.append(pall)
-            if abs((pall[1] + 25) - (mehike_x + 20)) < 40 and abs(
-                    (pall[2] + 25) - 680) < 37:  # kui põrkab mehikesega kokku
-                if pall[0] == angry:
+            if kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec_h, pall[4][0], pall[4][1],
+                              pall[4][2]):  # kui põrkab mehikesega kokku
+                if pall[0] == kollaneViirus or pall[0] == oranzViirus or pall[0] == lillakasViirus:
                     kuulid.clear()
-                    skoor = minutid * 60 + sekundid + käsnakallesi * 15  # arvutatakse skoor
+                    skoor = minutid * 60 + sekundid + maskideArv * 15  # arvutatakse skoor
                     uuenda_skoori_faili(skoor)
                     paremVajutatud = False
                     vasakVajutatud = False
                     näita_mäng = False
                     näita_skoori = True
-                if pall[0] == happy:
-                    käsnakallesi = käsnakallesi + 1
+                if pall[0] == maskiPilt:
+                    maskideArv = maskideArv + 1
                     eemaldusele.append(pall)
 
         # eemaldame teises tsüklis, et üle ei jookseks kogemata osadest pallidest
@@ -183,9 +232,11 @@ while True:
         if paremVajutatud:
             mehike_kiirus = 3
             kasutav_pilt_mehikesest = mehike_paremale
+            mehike_on_paremale = True
         if vasakVajutatud:
             mehike_kiirus = -3
             kasutav_pilt_mehikesest = mehike_vasakule
+            mehike_on_paremale = False
 
         # Kella kuvamine
         sekundid = int((pygame.time.get_ticks() - kella_korrigeerija) / 1000 % 60)
@@ -193,8 +244,7 @@ while True:
         kell = font.render("Aeg: " + str(minutid) + ":" + str(sekundid), False, (0, 0, 0))
         aken.blit(kell, (5, 20))
 
-        # Käsnakallede koguse kuvamine
-        tekst_kallesi = font.render("Käsna Kallesi " + str(käsnakallesi), False, (0, 0, 0))
+        tekst_kallesi = font.render("Maske kogutud: " + str(maskideArv), False, (0, 0, 0))
         aken.blit(tekst_kallesi, (5, 50))
 
         # Pallide lisamine
@@ -211,9 +261,16 @@ while True:
                     x_koordinaad = random.randint(5, 545)
                 eelnevapalli_x = x_koordinaad
                 if arv == 4:  # 1 kümnest on spongebob
-                    kuulid.append([happy, x_koordinaad, -60])
+                    kuulid.append([maskiPilt, x_koordinaad, -60, "mask"])
                 else:
-                    kuulid.append([angry, x_koordinaad, -60])
+                    suvaline = random.randint(0, 2)
+                    if suvaline == 0:
+                        kuulid.append([kollaneViirus, x_koordinaad, -60, "kollane"])
+                    elif suvaline == 1:
+                        kuulid.append([oranzViirus, x_koordinaad, -60, "oranz"])
+                    else:
+                        kuulid.append([lillakasViirus, x_koordinaad, -60, "lillakas"])
+
     # Kuva skoor peale mängu---------------------------------------------------------------------------------------------
     if näita_skoori:
         tekst1 = font.render('Sinu skoor', False, (0, 0, 0))
@@ -238,12 +295,12 @@ while True:
         aken.blit(tekst_tagasi, (35, 10))
 
         tekst1 = font.render("TOP 10", False, (0, 0, 0))
-        aken.blit(tekst1, (300 - tekst1.get_width()/2, 100))
+        aken.blit(tekst1, (300 - tekst1.get_width() / 2, 100))
 
         skoorid = loe_skoorid_failist()
         for i in range(len(skoorid)):
-            taane = 5 - len(str(i+1))
-            t = font.render(str(i+1) + "." + taane*" " + str(skoorid[i]), False, (0, 0, 0))
+            taane = 5 - len(str(i + 1))
+            t = font.render(str(i + 1) + "." + taane * " " + str(skoorid[i]), False, (0, 0, 0))
             aken.blit(t, (70, 170 + i * 45))
 
         for event in pygame.event.get():
@@ -252,6 +309,13 @@ while True:
             if event.type == pygame.MOUSEBUTTONDOWN and 10 <= hiir_x <= 160 and 10 <= hiir_y <= 60:  # kui vajutati tagasi
                 näita_edetabelit = False
                 näita_algus = True
-    #-------------------------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------------------------
+
+    # igal frameil joonistame uue pildi paremale ülesse nurka
+    if isCameraFound:
+        img = cam.get_image()
+        img = pygame.transform.scale(img, (150, 100))
+        aken.blit(img, (600 - 150, 0))
+
     pygame.display.flip()
     pygame.time.delay(17)
