@@ -1,11 +1,14 @@
 import sys
 import pygame
 import random
+import math
+
 
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
 LIME = 180, 255, 100
 RED = 255, 0, 0
+BACKGROUND_BLUE = 4, 176, 216
 
 pygame.init()
 aken = pygame.display.set_mode((600, 800))
@@ -15,6 +18,8 @@ kollaneViirus = pygame.image.load("kollaneViirus.png")
 oranzViirus = pygame.image.load("oranzViirus.png")
 lillakasViirus = pygame.image.load("lillakasViirus.png")
 maskiPilt = pygame.image.load("maskiPilt.png")
+hanerasv = pygame.image.load("hanerasv.png")
+hanerasv = pygame.transform.scale(hanerasv, (60, 170))
 kollaneViirus = pygame.transform.scale(kollaneViirus, (80, 80))
 oranzViirus = pygame.transform.scale(oranzViirus, (80, 80))
 lillakasViirus = pygame.transform.scale(lillakasViirus, (80, 80))
@@ -23,6 +28,7 @@ mehike_paremale = pygame.image.load("mehike.png")
 mehike_paremale = pygame.transform.scale(mehike_paremale, (40, 60))
 mehike_vasakule = pygame.transform.flip(mehike_paremale, True, False)
 font = pygame.font.SysFont('Comic Sans MS', 30)
+smallerfont = pygame.font.SysFont('Comic Sans MS', 17)
 kasutav_pilt_mehikesest = mehike_paremale
 mehike_on_paremale = True
 
@@ -40,12 +46,13 @@ pallide_lisamise_tik = 0
 jagaja = 0
 maskideArv = 0
 skoor = 0
+hanerasvaProtsent = 0
+iteratsiooniLugeja = 0
 
 pallide_kiirus = 2
 kuuli_algus = -70
 kuulid = []
-
-import math
+süstlad = []
 
 
 def kaugus(x1, y1, x2, y2):
@@ -88,7 +95,6 @@ def kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec
     paremaltKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w,mehikese_rec_y + mehikese_rec_h / 2)
     return (keskeltÜlevalt < takistus_radius or vasakultÜlevalt < takistus_radius or paremaltÜlevalt < takistus_radius or paremaltKeskelt < takistus_radius or vasakultKeskelt < takistus_radius)
 
-
 import pygame.camera
 
 pygame.camera.init()
@@ -99,9 +105,21 @@ if isCameraFound:
     cam.start()
     # pygame.image.save(cam.get_image(),"fbi_picture.jpg")
 
+
+def süstladTeele():
+    süstlaid = 9
+    vahe = int((600 - süstlaid*60) / (süstlaid-1))
+    süstlaX = 0
+    for i in range(süstlaid):
+        #pygame.draw.rect(aken, BLACK, (süstlaX, 600, 60, 170))
+        süstlad.append([hanerasv, süstlaX, 800])
+        süstlaX += 60 + vahe
+
+
 while True:
     hiir_x, hiir_y = pygame.mouse.get_pos()  # hiirepositsioon nuppude vajutamiseks
     aken.blit(taust, [0, 0])  # taustapildi joonistame kõige esimesena igal frameil
+
 
     # Alguse menüü------------------------------------------------------------------------------------------------------
     if näita_algus:
@@ -131,6 +149,8 @@ while True:
                 kuulid.clear()
                 mehike_x = 270
                 pallide_lisamise_tik = 0
+                iteratsiooniLugeja = 0
+                hanerasvaProtsent = 0
                 maskideArv = 0
                 jagaja = 60  # mida väiksemaks läheb, seda raskemaks muutub mäng
                 kella_korrigeerija = pygame.time.get_ticks()  # jätame meelde aja, millal mängu alustati, et saaks aega õigesti arvutada
@@ -185,11 +205,22 @@ while True:
             kuulid[i] = [kuul_pilt, kuul_x, kuul_y + pallide_kiirus, liik,
                          (takistus_center_x, takistus_center_y, takistus_radius)]
 
+        for s in süstlad:
+            aken.blit(s[0], (s[1], s[2]))
+            s[2] = s[2] - 4
+            if s[2] < -170:
+                süstlad.clear()
+
+
         # kustutame need pallid järjendist
         eemaldusele = []
         for pall in kuulid:
+            if len(süstlad) != 0 and pall[4][1] + pall[4][2] > süstlad[0][2] and pall[3] != "mask":
+                eemaldusele.append(pall)
+
             if pall[2] > 670:  # Kui jõuab maani, siis lisame eemaldusele
                 eemaldusele.append(pall)
+
             if kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec_h, pall[4][0], pall[4][1],
                               pall[4][2]):  # kui põrkab mehikesega kokku
                 if pall[0] == kollaneViirus or pall[0] == oranzViirus or pall[0] == lillakasViirus:
@@ -221,6 +252,9 @@ while True:
                     paremVajutatud = True
                 if event.key == pygame.K_LEFT:
                     vasakVajutatud = True
+                if hanerasvaProtsent >= 1 and event.key == pygame.K_RETURN:
+                    süstladTeele()
+                    hanerasvaProtsent = 0
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
                     paremVajutatud = False
@@ -250,7 +284,7 @@ while True:
         # Pallide lisamine
         if pallide_lisamise_tik % 1000 == 0 and jagaja > 20:  # iga 1000 ühiku tagant teeme raskemaks
             jagaja = jagaja - 10
-            print("Jagaja väärtus: " + str(jagaja))
+            print("Jagaja väärtus: " + str(jagaja) + "(mida väiksem, seda raskem)")
         pallide_lisamise_tik = pallide_lisamise_tik + 1
         if pallide_lisamise_tik % jagaja == 0:
             for i in range(2):  # igakord lisatakse nii palju palle korraga kui on range
@@ -270,6 +304,21 @@ while True:
                         kuulid.append([oranzViirus, x_koordinaad, -60, "oranz"])
                     else:
                         kuulid.append([lillakasViirus, x_koordinaad, -60, "lillakas"])
+
+        # hanerasva power
+        pygame.draw.rect(aken, BLACK, (5, 95, 200, 30))
+        pygame.draw.rect(aken, BACKGROUND_BLUE, (8, 98, 194, 24))
+        pygame.draw.rect(aken, LIME, (8, 98, 194 * hanerasvaProtsent, 24))
+        tekst_powerile = smallerfont.render('POWER MOVE', False, (0, 0, 0))
+
+        aken.blit(tekst_powerile, (48, 98))
+
+
+
+        if iteratsiooniLugeja % 10 == 0:
+            if hanerasvaProtsent < 1:
+                hanerasvaProtsent += 0.005
+        iteratsiooniLugeja += 1
 
     # Kuva skoor peale mängu---------------------------------------------------------------------------------------------
     if näita_skoori:
