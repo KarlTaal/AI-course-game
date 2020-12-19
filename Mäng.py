@@ -64,7 +64,7 @@ def kirjuta_skoorid_faili(skoorid):
     skoorid.sort(reverse=True)  # sorteerime kahanevasse järjekorda
     if len(skoorid) > 10:  # kui on rohkem kui 10 skoori, siis võtame ainult top10
         skoorid = skoorid[:10]
-    with open("skoorid.txt", "w") as fail:
+    with open("ajalugu/skoorid.txt", "w") as fail:
         for skoor in skoorid:
             fail.write(str(skoor) + "\n")
 
@@ -72,7 +72,7 @@ def kirjuta_skoorid_faili(skoorid):
 # loeb failist kõik skoorid ja tagstab kahanevasse järjekorda sorteeritud järjendi skooridest
 def loe_skoorid_failist():
     skoorid = []
-    with open("skoorid.txt") as fail:
+    with open("ajalugu/skoorid.txt") as fail:
         for rida in fail:
             skoorid.append(int(rida.strip()))
     skoorid.sort(reverse=True)  # sorteerime kahanevasse järjekorda
