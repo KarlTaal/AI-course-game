@@ -12,7 +12,7 @@ BACKGROUND_BLUE = 4, 176, 216
 
 pygame.init()
 aken = pygame.display.set_mode((600, 800))
-pygame.display.set_caption("Mäng")
+pygame.display.set_caption("TheGame")
 taust = pygame.image.load("pildid/taust.png")
 kollaneViirus = pygame.image.load("pildid/kollaneViirus.png")
 oranzViirus = pygame.image.load("pildid/oranzViirus.png")
@@ -27,8 +27,9 @@ maskiPilt = pygame.transform.scale(maskiPilt, (80, 80))
 mehike_paremale = pygame.image.load("pildid/mehike.png")
 mehike_paremale = pygame.transform.scale(mehike_paremale, (40, 60))
 mehike_vasakule = pygame.transform.flip(mehike_paremale, True, False)
-font = pygame.font.SysFont('Comic Sans MS', 30)
+bigFont = pygame.font.SysFont('Comic Sans MS', 30)
 smallerfont = pygame.font.SysFont('Comic Sans MS', 17)
+mediumFont = pygame.font.SysFont('Comic Sans MS', 22)
 kasutav_pilt_mehikesest = mehike_paremale
 mehike_on_paremale = True
 
@@ -36,6 +37,7 @@ näita_algus = True
 näita_mäng = False
 näita_skoori = False
 näita_edetabelit = False
+näita_abi = False
 mehike_x = 270
 mehike_kiirus = 0
 vasakVajutatud = False
@@ -123,27 +125,36 @@ while True:
 
     # Alguse menüü------------------------------------------------------------------------------------------------------
     if näita_algus:
-        tekst_start = font.render('Start', False, (0, 0, 0))
-        pygame.draw.rect(aken, BLACK, (220, 345, 160, 60))
-        pygame.draw.rect(aken, LIME, (225, 350, 150, 50))
-        aken.blit(tekst_start, (260, 350))
+        kk = -30 # sellega saab korrigeerida nuppude kõrgusi
+        tekst_start = bigFont.render('Start', False, (0, 0, 0))
+        pygame.draw.rect(aken, BLACK, (220, 345+kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 350+kk, 150, 50))
+        aken.blit(tekst_start, (260, 352+kk))
 
-        tekst_edetabelid = font.render('Edetabel', False, (0, 0, 0))
-        pygame.draw.rect(aken, BLACK, (220, 415, 160, 60))
-        pygame.draw.rect(aken, LIME, (225, 420, 150, 50))
-        aken.blit(tekst_edetabelid, (240, 420))
+        tekst_edetabelid = bigFont.render('Edetabel', False, (0, 0, 0))
+        pygame.draw.rect(aken, BLACK, (220, 415+kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 420+kk, 150, 50))
+        aken.blit(tekst_edetabelid, (240, 422+kk))
 
-        # Jäglime sündmusi
+        tekst_edetabelid = bigFont.render('Abi', False, (0, 0, 0))
+        pygame.draw.rect(aken, BLACK, (220, 485+kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 490+kk, 150, 50))
+        aken.blit(tekst_edetabelid, (275, 492+kk))
+
+        # Jälgime sündmusi
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 420 <= hiir_y <= 470:  # kui vajutati edetabelit
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 490+kk <= hiir_y <= 540+kk:  # kui vajutati edetabelit
+                näita_algus = False
+                näita_abi = True
+
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 420+kk <= hiir_y <= 470+kk:  # kui vajutati edetabelit
                 näita_algus = False
                 näita_edetabelit = True
 
-            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 350 <= hiir_y <= 400:  # kui vajutati starti
-                # algseadistame kõik näitajad mänguks ära
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 350+kk <= hiir_y <= 400+kk:  # kui vajutati starti
                 näita_mäng = True
                 näita_algus = False
                 kuulid.clear()
@@ -154,6 +165,7 @@ while True:
                 maskideArv = 0
                 jagaja = 60  # mida väiksemaks läheb, seda raskemaks muutub mäng
                 kella_korrigeerija = pygame.time.get_ticks()  # jätame meelde aja, millal mängu alustati, et saaks aega õigesti arvutada
+
 
     # Mängu stseen -----------------------------------------------------------------------------------------------------
     if näita_mäng:
@@ -275,10 +287,10 @@ while True:
         # Kella kuvamine
         sekundid = int((pygame.time.get_ticks() - kella_korrigeerija) / 1000 % 60)
         minutid = int((pygame.time.get_ticks() - kella_korrigeerija) / 60000 % 24)
-        kell = font.render("Aeg: " + str(minutid) + ":" + str(sekundid), False, (0, 0, 0))
+        kell = bigFont.render("Aeg: " + str(minutid) + ":" + str(sekundid), False, (0, 0, 0))
         aken.blit(kell, (5, 20))
 
-        tekst_kallesi = font.render("Maske kogutud: " + str(maskideArv), False, (0, 0, 0))
+        tekst_kallesi = bigFont.render("Maske kogutud: " + str(maskideArv), False, (0, 0, 0))
         aken.blit(tekst_kallesi, (5, 50))
 
         # Pallide lisamine
@@ -322,9 +334,9 @@ while True:
 
     # Kuva skoor peale mängu---------------------------------------------------------------------------------------------
     if näita_skoori:
-        tekst1 = font.render('Sinu skoor', False, (0, 0, 0))
-        tekst2 = font.render(str(skoor), False, (0, 0, 0))
-        tekst3 = font.render("Jätkamiseks vajuta enterit", False, (0, 0, 0))
+        tekst1 = bigFont.render('Sinu skoor', False, (0, 0, 0))
+        tekst2 = bigFont.render(str(skoor), False, (0, 0, 0))
+        tekst3 = bigFont.render("Jätkamiseks vajuta enterit", False, (0, 0, 0))
 
         aken.blit(tekst1, (300 - tekst1.get_width() / 2, 300))
         aken.blit(tekst2, (300 - tekst2.get_width() / 2, 350))
@@ -338,18 +350,18 @@ while True:
                     näita_skoori = False
     # Edetabeli vaatamine-----------------------------------------------------------------------------------------------
     if näita_edetabelit:
-        tekst_tagasi = font.render('Tagasi', False, (0, 0, 0))
+        tekst_tagasi = bigFont.render('Tagasi', False, (0, 0, 0))
         pygame.draw.rect(aken, BLACK, (5, 5, 160, 60))
         pygame.draw.rect(aken, LIME, (10, 10, 150, 50))
         aken.blit(tekst_tagasi, (35, 10))
 
-        tekst1 = font.render("TOP 10", False, (0, 0, 0))
+        tekst1 = bigFont.render("TOP 10", False, (0, 0, 0))
         aken.blit(tekst1, (300 - tekst1.get_width() / 2, 100))
 
         skoorid = loe_skoorid_failist()
         for i in range(len(skoorid)):
             taane = 5 - len(str(i + 1))
-            t = font.render(str(i + 1) + "." + taane * " " + str(skoorid[i]), False, (0, 0, 0))
+            t = bigFont.render(str(i + 1) + "." + taane * " " + str(skoorid[i]), False, (0, 0, 0))
             aken.blit(t, (70, 170 + i * 45))
 
         for event in pygame.event.get():
@@ -358,13 +370,66 @@ while True:
             if event.type == pygame.MOUSEBUTTONDOWN and 10 <= hiir_x <= 160 and 10 <= hiir_y <= 60:  # kui vajutati tagasi
                 näita_edetabelit = False
                 näita_algus = True
+
+
+    # Abi vaatamine-----------------------------------------------------------------------------------------------
+    if näita_abi:
+        tekst_tagasi = bigFont.render('Tagasi', False, (0, 0, 0))
+        pygame.draw.rect(aken, BLACK, (5, 5, 160, 60))
+        pygame.draw.rect(aken, LIME, (10, 10, 150, 50))
+        aken.blit(tekst_tagasi, (35, 10))
+
+        tekst1 = mediumFont.render("1. Põikle viiruste eest.", False, (0, 0, 0))
+        tekst2 = mediumFont.render("2. Kogu maske.", False, (0, 0, 0))
+        tekst3 = mediumFont.render("3. Poweri saadavuse korral hävita kõik viirused ekraanil.", False, (0, 0, 0))
+        tekst4 = mediumFont.render("4. Skoor = elus_püsitud_sekundid + maskid * 15.", False, (0, 0, 0))
+        tekst5 = smallerfont.render("Karl Taal", False, (0, 0, 0))
+        tekst6 = smallerfont.render("Alex Viil", False, (0, 0, 0))
+        tekst7 = smallerfont.render("Maria Pibilota Murumaa", False, (0, 0, 0))
+        tekst8 = smallerfont.render("Autorid:", False, (0, 0, 0))
+
+
+
+        tekst9 = smallerfont.render("Coming soon -> abi käskude kohta", False, (0, 0, 0))
+        tekst10 = smallerfont.render("Hetkel vasak parem nool ja poweri jaoks enter", False, (0, 0, 0))
+        aken.blit(tekst9, (300 - tekst9.get_width() / 2, 400))
+        aken.blit(tekst10, (300 - tekst10.get_width() / 2, 420))
+
+
+        aken.blit(tekst1, (10, 100))
+        aken.blit(tekst2, (10, 135))
+        aken.blit(tekst3, (10, 170))
+        aken.blit(tekst4, (10, 205))
+
+
+        y_autorid = 600
+        y_autorid_gap = 25
+        aken.blit(tekst8, (300 - tekst8.get_width() / 2, y_autorid))
+        aken.blit(tekst5, (300 - tekst5.get_width() / 2, y_autorid + y_autorid_gap))
+        aken.blit(tekst6, (300 - tekst6.get_width() / 2, y_autorid + y_autorid_gap*2))
+        aken.blit(tekst7, (300 - tekst7.get_width() / 2, y_autorid + y_autorid_gap*3))
+        aken.blit(mehike_vasakule, (380+40, 660))
+        aken.blit(mehike_paremale, (180-40, 660))
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and 10 <= hiir_x <= 160 and 10 <= hiir_y <= 60:  # kui vajutati tagasi
+                näita_abi = False
+                näita_algus = True
     # -------------------------------------------------------------------------------------------------------------------
+
+
 
     # igal frameil joonistame uue pildi paremale ülesse nurka
     if isCameraFound:
         img = cam.get_image()
         img = pygame.transform.scale(img, (150, 100))
-        aken.blit(img, (600 - 150, 0))
+        aken.blit(img, (450, 0))
+        käsk = "Undefined"
+        tekst_käsk = smallerfont.render(f"Käsk: {käsk}", False, (0, 0, 0))
+        aken.blit(tekst_käsk, (450, 100))
 
     pygame.display.flip()
     pygame.time.delay(17)
