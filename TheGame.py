@@ -13,6 +13,13 @@ BACKGROUND_BLUE = 4, 176, 216
 pygame.init()
 aken = pygame.display.set_mode((600, 800))
 pygame.display.set_caption("TheGame")
+vasakuleFinger = pygame.image.load("pildid/vasakule.png")
+paremaleFinger = pygame.image.load("pildid/paremale.png")
+ylesFinger = pygame.image.load("pildid/yles.png")
+vasakuleFinger = pygame.transform.scale(vasakuleFinger, (150, 50))
+paremaleFinger = pygame.transform.scale(paremaleFinger, (90, 50))
+ylesFinger = pygame.transform.scale(ylesFinger, (90, 140))
+
 taust = pygame.image.load("pildid/taust.png")
 kollaneViirus = pygame.image.load("pildid/kollaneViirus.png")
 oranzViirus = pygame.image.load("pildid/oranzViirus.png")
@@ -389,12 +396,25 @@ while True:
         tekst8 = smallerfont.render("Autorid:", False, (0, 0, 0))
 
 
-
+        """
         tekst9 = smallerfont.render("Coming soon -> abi käskude kohta", False, (0, 0, 0))
         tekst10 = smallerfont.render("Hetkel vasak parem nool ja poweri jaoks enter", False, (0, 0, 0))
         aken.blit(tekst9, (300 - tekst9.get_width() / 2, 400))
         aken.blit(tekst10, (300 - tekst10.get_width() / 2, 420))
+        """
 
+        tekst9 = mediumFont.render("Käsud: (hetkel ei tööta, praegu nooled ja enter nupp)", False, (0, 0, 0))
+        tekst10 = mediumFont.render("--> Liigu vasakule", False, (0, 0, 0))
+        tekst11 = mediumFont.render("--> Liigu paremale", False, (0, 0, 0))
+        tekst12 = mediumFont.render("--> Aktiveeri power käik", False, (0, 0, 0))
+
+        aken.blit(tekst9, (10, 275))
+        aken.blit(vasakuleFinger, (0, 315))
+        aken.blit(paremaleFinger, (37, 375))
+        aken.blit(ylesFinger, (30, 410))
+        aken.blit(tekst10, (145, 322))
+        aken.blit(tekst11, (145, 385))
+        aken.blit(tekst12, (145, 470))
 
         aken.blit(tekst1, (10, 100))
         aken.blit(tekst2, (10, 135))
