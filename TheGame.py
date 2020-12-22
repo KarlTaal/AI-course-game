@@ -3,6 +3,12 @@ import pygame
 import random
 import math
 
+import pygame.camera
+from PIL import Image
+
+import keras
+import numpy as np
+
 
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
@@ -104,7 +110,18 @@ def kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec
     paremaltKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w,mehikese_rec_y + mehikese_rec_h / 2)
     return (keskeltÜlevalt < takistus_radius or vasakultÜlevalt < takistus_radius or paremaltÜlevalt < takistus_radius or paremaltKeskelt < takistus_radius or vasakultKeskelt < takistus_radius)
 
-import pygame.camera
+
+# takes a PyGame surface as its image argument
+def getCommand(image, width=640, height=480):
+    nn_img = Image.frombytes("RGBA",(width, height), pygame.image.tostring(image, 'RGBA')).convert('L') # L is basically grayscale
+    array = np.array(nn_img.resize((320, 120)), dtype='float32')
+    # inverting (invert if background is white)
+    if (np.mean(array) > 128):
+        array = 255 - array
+    #print(array)
+    array = array.reshape((1, 120, 320, 1))
+    predictions = nn_model.predict(np.array(array))
+    return np.argmax(predictions) if np.max(predictions) > 0.9 else 10
 
 pygame.camera.init()
 isCameraFound = len(pygame.camera.list_cameras()) != 0  # Camera detected or not
@@ -113,6 +130,8 @@ if isCameraFound:
     cam = pygame.camera.Camera(0, (640, 480))
     cam.start()
     # pygame.image.save(cam.get_image(),"fbi_picture.jpg")
+    nn_model = keras.models.load_model("nn")
+    gestures = ["palm", "L", "fist", "fist_moved", "thumb", "index", "ok", "palm_moved", "c", "down", "undefined"]
 
 
 def süstladTeele():
@@ -124,7 +143,7 @@ def süstladTeele():
         süstlad.append([hanerasv, süstlaX, 800])
         süstlaX += 60 + vahe
 
-
+cam_frame_counter = 999
 while True:
     hiir_x, hiir_y = pygame.mouse.get_pos()  # hiirepositsioon nuppude vajutamiseks
     aken.blit(taust, [0, 0])  # taustapildi joonistame kõige esimesena igal frameil
@@ -262,6 +281,27 @@ while True:
             except:
                 pass
 
+        # töötleme veebikaamera sisendit ja käitume sellele vastavalt
+        if isCameraFound:
+            cam_frame_counter += 1
+            if cam_frame_counter > 5: # how often to accept webcam input: fps/cam_frame_counter times per second
+                # reset counter
+                cam_frame_counter = 0
+                # get image and predict gesture
+                img = cam.get_image()
+                käsk = gestures[getCommand(img)]
+                tekst_käsk = smallerfont.render(f"Käsk: {käsk}", False, (0, 0, 0))
+                img = pygame.transform.scale(img, (150, 100))
+                # control
+                paremVajutatud = True if käsk == "palm" else False
+                vasakVajutatud = True if käsk == "c" else False
+                if (käsk == "ok" and hanerasvaProtsent >= 1):
+                    süstladTeele()
+                    hanerasvaProtsent = 0
+            aken.blit(img, (450, 0))
+            aken.blit(tekst_käsk, (450, 100))
+
+        '''
         # Jälgime sündmusi
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -279,6 +319,7 @@ while True:
                     paremVajutatud = False
                 if event.key == pygame.K_LEFT:
                     vasakVajutatud = False
+        '''
 
         # Kui hoitakse nuppu all siis liigutame
         mehike_kiirus = 0
@@ -439,17 +480,6 @@ while True:
                 näita_abi = False
                 näita_algus = True
     # -------------------------------------------------------------------------------------------------------------------
-
-
-
-    # igal frameil joonistame uue pildi paremale ülesse nurka
-    if isCameraFound:
-        img = cam.get_image()
-        img = pygame.transform.scale(img, (150, 100))
-        aken.blit(img, (450, 0))
-        käsk = "Undefined"
-        tekst_käsk = smallerfont.render(f"Käsk: {käsk}", False, (0, 0, 0))
-        aken.blit(tekst_käsk, (450, 100))
 
     pygame.display.flip()
     pygame.time.delay(17)
