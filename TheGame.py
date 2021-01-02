@@ -9,6 +9,7 @@ from PIL import Image
 import keras
 import numpy as np
 
+import threading
 
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
@@ -46,6 +47,7 @@ mediumFont = pygame.font.SysFont('Comic Sans MS', 22)
 kasutav_pilt_mehikesest = mehike_paremale
 mehike_on_paremale = True
 
+näita_testimine = False
 näita_algus = True
 näita_mäng = False
 näita_skoori = False
@@ -68,6 +70,8 @@ pallide_kiirus = 2
 kuuli_algus = -70
 kuulid = []
 süstlad = []
+
+
 
 
 def kaugus(x1, y1, x2, y2):
@@ -101,27 +105,18 @@ def uuenda_skoori_faili(lisatav_skoor):
     kirjuta_skoorid_faili(vanad)
 
 
-def kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec_h, takistus_center_x, takistus_center_y,takistus_radius):
+def kasPõrkasKokku(mehikese_rec_x, mehikese_rec_y, mehikese_rec_w, mehikese_rec_h, takistus_center_x, takistus_center_y,
+                   takistus_radius):
     # kukkuva objekti kaugus viite erineva punkti kohta mehikesel
     keskeltÜlevalt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w / 2, mehikese_rec_y)
     vasakultÜlevalt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x, mehikese_rec_y)
     paremaltÜlevalt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w, mehikese_rec_y)
     vasakultKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x, mehikese_rec_y + mehikese_rec_h / 2)
-    paremaltKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w,mehikese_rec_y + mehikese_rec_h / 2)
-    return (keskeltÜlevalt < takistus_radius or vasakultÜlevalt < takistus_radius or paremaltÜlevalt < takistus_radius or paremaltKeskelt < takistus_radius or vasakultKeskelt < takistus_radius)
+    paremaltKeskelt = kaugus(takistus_center_x, takistus_center_y, mehikese_rec_x + mehikese_rec_w,
+                             mehikese_rec_y + mehikese_rec_h / 2)
+    return (
+                keskeltÜlevalt < takistus_radius or vasakultÜlevalt < takistus_radius or paremaltÜlevalt < takistus_radius or paremaltKeskelt < takistus_radius or vasakultKeskelt < takistus_radius)
 
-
-# takes a PyGame surface as its image argument
-def getCommand(image, width=640, height=480):
-    nn_img = Image.frombytes("RGBA",(width, height), pygame.image.tostring(image, 'RGBA')).convert('L') # L is basically grayscale
-    array = np.array(nn_img.resize((320, 120)), dtype='float32')
-    # inverting (invert if background is white)
-    if (np.mean(array) > 128):
-        array = 255 - array
-    #print(array)
-    array = array.reshape((1, 120, 320, 1))
-    predictions = nn_model.predict(np.array(array))
-    return np.argmax(predictions) if np.max(predictions) > 0.9 else 10
 
 pygame.camera.init()
 isCameraFound = len(pygame.camera.list_cameras()) != 0  # Camera detected or not
@@ -136,51 +131,82 @@ if isCameraFound:
 
 def süstladTeele():
     süstlaid = 9
-    vahe = int((600 - süstlaid*60) / (süstlaid-1))
+    vahe = int((600 - süstlaid * 60) / (süstlaid - 1))
     süstlaX = 0
     for i in range(süstlaid):
-        #pygame.draw.rect(aken, BLACK, (süstlaX, 600, 60, 170))
+        # pygame.draw.rect(aken, BLACK, (süstlaX, 600, 60, 170))
         süstlad.append([hanerasv, süstlaX, 800])
         süstlaX += 60 + vahe
 
+
+tuvastatud_käsk = "-"
 cam_frame_counter = 999
+
+class teeEnnustusEraldiThreadis(threading.Thread):
+    def __init__(self, image):
+        threading.Thread.__init__(self)
+        self.image = image
+
+    def run(self):
+        global tuvastatud_käsk
+        nn_img = Image.frombytes("RGBA", (640, 480), pygame.image.tostring(self.image, 'RGBA')).convert(
+            'L')  # L is basically grayscale
+        array = np.array(nn_img.resize((320, 120)), dtype='float32')
+        # inverting (invert if background is white)
+        if (np.mean(array) > 128):
+            array = 255 - array
+        # print(array)
+        array = array.reshape((1, 120, 320, 1))
+        predictions = nn_model.predict(np.array(array))
+        tuvastatud_käsk = gestures[np.argmax(predictions) if np.max(predictions) > 0.9 else 10]
+
+
+
 while True:
     hiir_x, hiir_y = pygame.mouse.get_pos()  # hiirepositsioon nuppude vajutamiseks
     aken.blit(taust, [0, 0])  # taustapildi joonistame kõige esimesena igal frameil
 
-
     # Alguse menüü------------------------------------------------------------------------------------------------------
     if näita_algus:
-        kk = -30 # sellega saab korrigeerida nuppude kõrgusi
+        kk = -30  # sellega saab korrigeerida nuppude kõrgusi
         tekst_start = bigFont.render('Start', False, (0, 0, 0))
-        pygame.draw.rect(aken, BLACK, (220, 345+kk, 160, 60))
-        pygame.draw.rect(aken, LIME, (225, 350+kk, 150, 50))
-        aken.blit(tekst_start, (260, 352+kk))
+        pygame.draw.rect(aken, BLACK, (220, 345 + kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 350 + kk, 150, 50))
+        aken.blit(tekst_start, (260, 352 + kk))
 
         tekst_edetabelid = bigFont.render('Edetabel', False, (0, 0, 0))
-        pygame.draw.rect(aken, BLACK, (220, 415+kk, 160, 60))
-        pygame.draw.rect(aken, LIME, (225, 420+kk, 150, 50))
-        aken.blit(tekst_edetabelid, (240, 422+kk))
+        pygame.draw.rect(aken, BLACK, (220, 415 + kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 420 + kk, 150, 50))
+        aken.blit(tekst_edetabelid, (240, 422 + kk))
 
         tekst_edetabelid = bigFont.render('Abi', False, (0, 0, 0))
-        pygame.draw.rect(aken, BLACK, (220, 485+kk, 160, 60))
-        pygame.draw.rect(aken, LIME, (225, 490+kk, 150, 50))
-        aken.blit(tekst_edetabelid, (275, 492+kk))
+        pygame.draw.rect(aken, BLACK, (220, 485 + kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 490 + kk, 150, 50))
+        aken.blit(tekst_edetabelid, (275, 492 + kk))
+
+        tekst_testing = bigFont.render('Testimine', False, (0, 0, 0))
+        pygame.draw.rect(aken, BLACK, (220, 555 + kk, 160, 60))
+        pygame.draw.rect(aken, LIME, (225, 560 + kk, 150, 50))
+        aken.blit(tekst_testing, (232, 562 + kk))
 
         # Jälgime sündmusi
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 490+kk <= hiir_y <= 540+kk:  # kui vajutati edetabelit
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 560 + kk <= hiir_y <= 610 + kk:  # kui vajutati edetabelit
+                näita_algus = False
+                näita_testimine = True
+
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 490 + kk <= hiir_y <= 540 + kk:  # kui vajutati edetabelit
                 näita_algus = False
                 näita_abi = True
 
-            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 420+kk <= hiir_y <= 470+kk:  # kui vajutati edetabelit
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 420 + kk <= hiir_y <= 470 + kk:  # kui vajutati edetabelit
                 näita_algus = False
                 näita_edetabelit = True
 
-            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 350+kk <= hiir_y <= 400+kk:  # kui vajutati starti
+            if event.type == pygame.MOUSEBUTTONDOWN and 225 <= hiir_x <= 375 and 350 + kk <= hiir_y <= 400 + kk:  # kui vajutati starti
                 näita_mäng = True
                 näita_algus = False
                 kuulid.clear()
@@ -191,7 +217,6 @@ while True:
                 maskideArv = 0
                 jagaja = 60  # mida väiksemaks läheb, seda raskemaks muutub mäng
                 kella_korrigeerija = pygame.time.get_ticks()  # jätame meelde aja, millal mängu alustati, et saaks aega õigesti arvutada
-
 
     # Mängu stseen -----------------------------------------------------------------------------------------------------
     if näita_mäng:
@@ -237,7 +262,7 @@ while True:
                 takistus_center_y = kuul_y + 33
                 takistus_radius = 33
 
-            #pygame.draw.circle(aken, BLACK, (takistus_center_x, takistus_center_y), takistus_radius)
+            # pygame.draw.circle(aken, BLACK, (takistus_center_x, takistus_center_y), takistus_radius)
             aken.blit(kuul_pilt, (kuul_x, kuul_y))
 
             kuulid[i] = [kuul_pilt, kuul_x, kuul_y + pallide_kiirus, liik,
@@ -248,7 +273,6 @@ while True:
             s[2] = s[2] - 4
             if s[2] < -170:
                 süstlad.clear()
-
 
         # kustutame need pallid järjendist
         eemaldusele = []
@@ -284,20 +308,20 @@ while True:
         # töötleme veebikaamera sisendit ja käitume sellele vastavalt
         if isCameraFound:
             cam_frame_counter += 1
-            if cam_frame_counter > 5: # how often to accept webcam input: fps/cam_frame_counter times per second
-                # reset counter
+            img = cam.get_image()
+            if cam_frame_counter % 5 == 0:  # how often to accept webcam input: fps/cam_frame_counter times per second
                 cam_frame_counter = 0
-                # get image and predict gesture
-                img = cam.get_image()
-                käsk = gestures[getCommand(img)]
-                tekst_käsk = smallerfont.render(f"Käsk: {käsk}", False, (0, 0, 0))
-                img = pygame.transform.scale(img, (150, 100))
-                # control
-                paremVajutatud = True if käsk == "palm" else False
-                vasakVajutatud = True if käsk == "c" else False
-                if (käsk == "ok" and hanerasvaProtsent >= 1):
-                    süstladTeele()
-                    hanerasvaProtsent = 0
+                teeEnnustusEraldiThreadis(img).start() #seadistab globaalse muutuja ära
+
+            tekst_käsk = smallerfont.render(f"Käsk: {tuvastatud_käsk}", False, (0, 0, 0))
+            img = pygame.transform.scale(img, (150, 100))
+
+            paremVajutatud = True if tuvastatud_käsk == "palm" else False
+            vasakVajutatud = True if tuvastatud_käsk == "c" else False
+            if (tuvastatud_käsk == "ok" and hanerasvaProtsent >= 1):
+                süstladTeele()
+                hanerasvaProtsent = 0
+
             aken.blit(img, (450, 0))
             aken.blit(tekst_käsk, (450, 100))
 
@@ -373,8 +397,6 @@ while True:
 
         aken.blit(tekst_powerile, (48, 98))
 
-
-
         if iteratsiooniLugeja % 10 == 0:
             if hanerasvaProtsent < 1:
                 hanerasvaProtsent += 0.005
@@ -419,7 +441,6 @@ while True:
                 näita_edetabelit = False
                 näita_algus = True
 
-
     # Abi vaatamine-----------------------------------------------------------------------------------------------
     if näita_abi:
         tekst_tagasi = bigFont.render('Tagasi', False, (0, 0, 0))
@@ -435,7 +456,6 @@ while True:
         tekst6 = smallerfont.render("Alex Viil", False, (0, 0, 0))
         tekst7 = smallerfont.render("Maria Pibilota Murumaa", False, (0, 0, 0))
         tekst8 = smallerfont.render("Autorid:", False, (0, 0, 0))
-
 
         """
         tekst9 = smallerfont.render("Coming soon -> abi käskude kohta", False, (0, 0, 0))
@@ -462,16 +482,14 @@ while True:
         aken.blit(tekst3, (10, 170))
         aken.blit(tekst4, (10, 205))
 
-
         y_autorid = 600
         y_autorid_gap = 25
         aken.blit(tekst8, (300 - tekst8.get_width() / 2, y_autorid))
         aken.blit(tekst5, (300 - tekst5.get_width() / 2, y_autorid + y_autorid_gap))
-        aken.blit(tekst6, (300 - tekst6.get_width() / 2, y_autorid + y_autorid_gap*2))
-        aken.blit(tekst7, (300 - tekst7.get_width() / 2, y_autorid + y_autorid_gap*3))
-        aken.blit(mehike_vasakule, (380+40, 660))
-        aken.blit(mehike_paremale, (180-40, 660))
-
+        aken.blit(tekst6, (300 - tekst6.get_width() / 2, y_autorid + y_autorid_gap * 2))
+        aken.blit(tekst7, (300 - tekst7.get_width() / 2, y_autorid + y_autorid_gap * 3))
+        aken.blit(mehike_vasakule, (380 + 40, 660))
+        aken.blit(mehike_paremale, (180 - 40, 660))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -479,7 +497,37 @@ while True:
             if event.type == pygame.MOUSEBUTTONDOWN and 10 <= hiir_x <= 160 and 10 <= hiir_y <= 60:  # kui vajutati tagasi
                 näita_abi = False
                 näita_algus = True
-    # -------------------------------------------------------------------------------------------------------------------
+        # -------------------------------------------------------------------------------------------------------------------
 
+        # Kaamera testimine-----------------------------------------------------------------------------------------------
+    if näita_testimine:
+        tekst_tagasi = bigFont.render('Tagasi', False, (0, 0, 0))
+        pygame.draw.rect(aken, BLACK, (5, 5, 160, 60))
+        pygame.draw.rect(aken, LIME, (10, 10, 150, 50))
+        aken.blit(tekst_tagasi, (35, 10))
+
+        if isCameraFound:
+            img = cam.get_image()
+
+            if cam_frame_counter % 5 == 0:
+                teeEnnustusEraldiThreadis(img).start()
+                cam_frame_counter = 0
+            cam_frame_counter += 1
+
+            tekst_käsk = smallerfont.render(f"Käsk: {tuvastatud_käsk}", False, (0, 0, 0))
+            img = pygame.transform.scale(img, (150, 100))
+            aken.blit(img, (225, 350))
+            aken.blit(tekst_käsk, (225, 450))
+        else:
+            tekst_käsk = smallerfont.render("Kaamerat ei tuvastatud", False, (0, 0, 0))
+            pygame.draw.rect(aken, BLACK, (225, 350, 150, 100))
+            aken.blit(tekst_käsk, (225, 450))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and 10 <= hiir_x <= 160 and 10 <= hiir_y <= 60:  # kui vajutati tagasi
+                näita_testimine = False
+                näita_algus = True
     pygame.display.flip()
     pygame.time.delay(17)

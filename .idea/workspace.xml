@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dc45fe08-7d2d-484b-9f18-a135124f802f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/AI-course-game.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AI-course-game.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AI_game_command_dev.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/AI_game_command_dev.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TheGame.py" beforeDir="false" afterPath="$PROJECT_DIR$/TheGame.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/commandDev/AI_game_command_dev.ipynb" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,35 +14,44 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/AI_course_game$TheGame.coverage" NAME="TheGame Coverage Results" MODIFIED="1608928516955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AI_course_game$TheGame.coverage" NAME="TheGame Coverage Results" MODIFIED="1609589976784" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AI_course_game$Mäng.coverage" NAME="Mäng Coverage Results" MODIFIED="1608594287377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TheGame.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <folding>
-                <element signature="e#271#281#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="85">
-                <caret line="5" column="68" lean-forward="true" selection-start-line="5" selection-start-column="68" selection-end-line="5" selection-end-column="68" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/TheGame.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="344">
+                  <caret line="533" column="45" lean-forward="true" selection-start-line="533" selection-start-column="45" selection-end-line="533" selection-end-column="45" />
+                  <folding>
+                    <element signature="e#0#10#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/TheGame.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="540">
+                  <caret line="339" column="25" selection-start-line="339" selection-start-column="25" selection-end-line="339" selection-end-column="25" />
+                  <folding>
+                    <element signature="e#0#10#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -51,6 +60,7 @@
       <find>kuulid.append</find>
       <find>kuulid[</find>
       <find>Käsna</find>
+      <find>rect</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -61,14 +71,14 @@
       <list>
         <option value="$PROJECT_DIR$/AI_game_command_dev.ipynb" />
         <option value="$PROJECT_DIR$/Mäng.py" />
-        <option value="$PROJECT_DIR$/TheGame.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/TheGame.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="867" />
-    <option name="width" value="1051" />
+    <option name="x" value="766" />
+    <option name="width" value="1152" />
     <option name="height" value="1049" />
   </component>
   <component name="ProjectView">
@@ -76,6 +86,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -87,7 +98,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -185,24 +195,24 @@
       <workItem from="1607879240435" duration="6858000" />
       <workItem from="1608073109224" duration="1141000" />
       <workItem from="1608322855834" duration="18952000" />
-      <workItem from="1608926645405" duration="2602000" />
+      <workItem from="1608926645405" duration="2856000" />
+      <workItem from="1609586596432" duration="3226000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="29989000" />
+    <option name="totallyTimeSpent" value="33469000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.2371342" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.2755682" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Thumbnails" weight="0.32969433" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.30010834" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.17009751" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -211,8 +221,9 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.3624454" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.18231441" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.3296582" />
+      <window_info anchor="bottom" id="Thumbnails" order="13" weight="0.32969433" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -249,18 +260,8 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test.jpg" />
-    <entry file="file://$PROJECT_DIR$/commandDev/AI_game_command_dev.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pildid/hanerasv.png">
       <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
@@ -269,22 +270,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TheGame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#271#281#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="85">
-            <caret line="5" column="68" lean-forward="true" selection-start-line="5" selection-start-column="68" selection-end-line="5" selection-end-column="68" />
+          <first_editor relative-caret-position="204">
+            <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-269" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AI_game_command_dev.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/commandDev/AI_game_command_dev.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TheGame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="339" column="25" selection-start-line="339" selection-start-column="25" selection-end-line="339" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
