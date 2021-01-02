@@ -78,24 +78,34 @@ def kaugus(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
+sessiooni_skoorid = []
 # võtab parameetriks skooride järjendi ja kirjutab need faili igale reale 1 skoor, kahanevasse järjekorda
 def kirjuta_skoorid_faili(skoorid):
+    global sessiooni_skoorid
+    skoorid.sort(reverse=True)
+    sessiooni_skoorid = skoorid[:10]
+    """
     skoorid.sort(reverse=True)  # sorteerime kahanevasse järjekorda
     if len(skoorid) > 10:  # kui on rohkem kui 10 skoori, siis võtame ainult top10
         skoorid = skoorid[:10]
     with open("ajalugu/skoorid.txt", "w") as fail:
         for skoor in skoorid:
             fail.write(str(skoor) + "\n")
+    """
 
 
 # loeb failist kõik skoorid ja tagstab kahanevasse järjekorda sorteeritud järjendi skooridest
 def loe_skoorid_failist():
+    global sessiooni_skoorid
+    return sessiooni_skoorid
+    """
     skoorid = []
     with open("ajalugu/skoorid.txt") as fail:
         for rida in fail:
             skoorid.append(int(rida.strip()))
     skoorid.sort(reverse=True)  # sorteerime kahanevasse järjekorda
     return skoorid
+    """
 
 
 # võtab parameetriks skoori ja lisab selle skooride faili
