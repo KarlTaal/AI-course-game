@@ -126,7 +126,8 @@ if isCameraFound:
     cam.start()
     # pygame.image.save(cam.get_image(),"fbi_picture.jpg")
     nn_model = keras.models.load_model("nn")
-    gestures = ["palm", "L", "fist", "fist_moved", "thumb", "index", "ok", "palm_moved", "c", "down", "undefined"]
+    gestures = ["palm", "fist", "thumb", "c", "undefined"]
+    # gestures = ["palm", "L", "fist", "fist_moved", "thumb", "index", "ok", "palm_moved", "c", "down", "undefined"]
 
 
 def süstladTeele():
