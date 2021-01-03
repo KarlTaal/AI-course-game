@@ -9,6 +9,8 @@ from PIL import Image
 import keras
 import numpy as np
 
+import cv2 as cv
+
 import threading
 
 BLACK = 0, 0, 0
@@ -72,6 +74,53 @@ kuulid = []
 süstlad = []
 
 
+face_cascade = cv.CascadeClassifier("Game_Control_Dev_ver_2/haarcascade_frontalface_default.xml")
+eye_cascade = cv.CascadeClassifier("Game_Control_Dev_ver_2/haarcascade_eye.xml")
+#smile_cascade = cv.CascadeClassifier('Game_Control_Dev_ver_2/haarcascade_smile.xml') #ei töötanud hästi
+"""
+    Tagastus listina võimalikest väärtustest:
+    'vasak'
+    'parem'
+    'power'
+"""
+def ennusta(img):
+    global tuvastatud_käsk
+    koopia = img.copy()
+    gray = cv.cvtColor(koopia, cv.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray)
+
+    eyes = []
+    for (x, y, w, h) in faces:
+        cv.rectangle(koopia, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        roi_gray = gray[y:y + h, x: x + h]
+        roi_color = koopia[y:y + h, x: x + h]
+        eyes = eye_cascade.detectMultiScale(roi_gray)
+
+    vastused = []
+    if len(faces) == 0:
+        vastused.append("power")
+
+    if len(eyes) == 2:
+        # silmade koordinaadid x,y (tuvastuse keskpunkt)
+        kesk1 = (eyes[0][0] + int(eyes[0][2] / 2), eyes[0][1] + int(eyes[0][3] / 2))
+        kesk2 = (eyes[1][0] + int(eyes[1][2] / 2), eyes[1][1] + int(eyes[1][3] / 2))
+
+        if (kesk1[0] < kesk2[0]):
+            vasak = kesk1
+            parem = kesk2
+        else:
+            vasak = kesk2
+            parem = kesk1
+
+        tolerants = 20
+        vahe = vasak[1] - parem[1]
+
+        if vahe > tolerants:
+            vastused.append("vasakule")
+        if vahe < -tolerants:
+            vastused.append("paremale")
+    tuvastatud_käsk = vastused
+
 
 
 def kaugus(x1, y1, x2, y2):
@@ -134,8 +183,8 @@ print(f"Leidsin kaamera: {isCameraFound}")
 if isCameraFound:
     cam = pygame.camera.Camera(0, (640, 480))
     cam.start()
-    # pygame.image.save(cam.get_image(),"fbi_picture.jpg")
-    nn_model = keras.models.load_model("nn")
+    #pygame.image.save(cam.get_image(),"fbi_picture10.png")
+    #nn_model = keras.models.load_model("nn")
     gestures = ["palm", "fist", "thumb", "c", "undefined"]
     # gestures = ["palm", "L", "fist", "fist_moved", "thumb", "index", "ok", "palm_moved", "c", "down", "undefined"]
 
@@ -320,19 +369,30 @@ while True:
         if isCameraFound:
             cam_frame_counter += 1
             img = cam.get_image()
-            if cam_frame_counter % 5 == 0:  # how often to accept webcam input: fps/cam_frame_counter times per second
+            img = pygame.transform.flip(img, True, False)
+            if cam_frame_counter % 5 == 0:
                 cam_frame_counter = 0
-                teeEnnustusEraldiThreadis(img).start() #seadistab globaalse muutuja ära
+                #teeEnnustusEraldiThreadis(img).start() #seadistab globaalse muutuja ära
+
+                muundatud = pygame.surfarray.array3d(img).transpose([1, 0, 2])
+                ennusta(muundatud)
 
             tekst_käsk = smallerfont.render(f"Käsk: {tuvastatud_käsk}", False, (0, 0, 0))
             img = pygame.transform.scale(img, (150, 100))
+            paremVajutatud = True if "paremale" in tuvastatud_käsk else False
+            vasakVajutatud = True if "vasakule" in tuvastatud_käsk else False
+            if ("power" in tuvastatud_käsk and hanerasvaProtsent >= 1):
+                süstladTeele()
+                hanerasvaProtsent = 0
 
+
+            """ # närvivõrgu puhul on see
             paremVajutatud = True if tuvastatud_käsk == "palm" else False
             vasakVajutatud = True if tuvastatud_käsk == "c" else False
             if (tuvastatud_käsk == "ok" and hanerasvaProtsent >= 1):
                 süstladTeele()
                 hanerasvaProtsent = 0
-
+            """
             aken.blit(img, (450, 0))
             aken.blit(tekst_käsk, (450, 100))
 
@@ -377,7 +437,7 @@ while True:
         aken.blit(tekst_kallesi, (5, 50))
 
         # Pallide lisamine
-        if pallide_lisamise_tik % 1000 == 0 and jagaja > 20:  # iga 1000 ühiku tagant teeme raskemaks
+        if pallide_lisamise_tik % 2000 == 0 and jagaja > 20:  # iga 1000 ühiku tagant teeme raskemaks
             jagaja = jagaja - 10
             print("Jagaja väärtus: " + str(jagaja) + "(mida väiksem, seda raskem)")
         pallide_lisamise_tik = pallide_lisamise_tik + 1
@@ -408,7 +468,7 @@ while True:
 
         aken.blit(tekst_powerile, (48, 98))
 
-        if iteratsiooniLugeja % 10 == 0:
+        if iteratsiooniLugeja % 7 == 0:
             if hanerasvaProtsent < 1:
                 hanerasvaProtsent += 0.005
         iteratsiooniLugeja += 1
@@ -519,9 +579,11 @@ while True:
 
         if isCameraFound:
             img = cam.get_image()
-
+            img = pygame.transform.flip(img, True, False)
             if cam_frame_counter % 5 == 0:
-                teeEnnustusEraldiThreadis(img).start()
+                #teeEnnustusEraldiThreadis(img).start()
+                muundatud = pygame.surfarray.array3d(img).transpose([1, 0, 2])
+                ennusta(muundatud)
                 cam_frame_counter = 0
             cam_frame_counter += 1
 
