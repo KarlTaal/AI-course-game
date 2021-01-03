@@ -74,8 +74,8 @@ kuulid = []
 süstlad = []
 
 
-face_cascade = cv.CascadeClassifier("Game_Control_Dev_ver_2/haarcascade_frontalface_default.xml")
-eye_cascade = cv.CascadeClassifier("Game_Control_Dev_ver_2/haarcascade_eye.xml")
+face_cascade = cv.CascadeClassifier("face_command_details/haarcascade_frontalface_default.xml")
+eye_cascade = cv.CascadeClassifier("face_command_details/haarcascade_eye.xml")
 #smile_cascade = cv.CascadeClassifier('Game_Control_Dev_ver_2/haarcascade_smile.xml') #ei töötanud hästi
 """
     Tagastus listina võimalikest väärtustest:
