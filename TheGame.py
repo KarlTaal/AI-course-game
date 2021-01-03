@@ -184,7 +184,7 @@ if isCameraFound:
     cam = pygame.camera.Camera(0, (640, 480))
     cam.start()
     #pygame.image.save(cam.get_image(),"fbi_picture10.png")
-    #nn_model = keras.models.load_model("nn")
+    nn_model = keras.models.load_model("nn")
     gestures = ["palm", "fist", "thumb", "c", "undefined"]
     # gestures = ["palm", "L", "fist", "fist_moved", "thumb", "index", "ok", "palm_moved", "c", "down", "undefined"]
 
