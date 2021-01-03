@@ -22,7 +22,9 @@ cx_Freeze.setup(
         ],
             "include_files": [
                 "pildid",
-                "nn"
+                "Game_Control_Dev_ver_2/haarcascade_eye.xml",
+                "Game_Control_Dev_ver_2/haarcascade_frontalface_default.xml"
+                #"nn"
             ]
         }},
     executables=executables

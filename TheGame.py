@@ -1,17 +1,16 @@
 import sys
-import pygame
 import random
 import math
-
 import pygame.camera
-from PIL import Image
+import cv2 as cv
+import pygame
 
+"""
+from PIL import Image
 import keras
 import numpy as np
-
-import cv2 as cv
-
 import threading
+"""
 
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
@@ -74,9 +73,11 @@ kuulid = []
 süstlad = []
 
 
+
 face_cascade = cv.CascadeClassifier("face_command_details/haarcascade_frontalface_default.xml")
 eye_cascade = cv.CascadeClassifier("face_command_details/haarcascade_eye.xml")
 #smile_cascade = cv.CascadeClassifier('Game_Control_Dev_ver_2/haarcascade_smile.xml') #ei töötanud hästi
+
 """
     Tagastus listina võimalikest väärtustest:
     'vasak'
@@ -112,7 +113,7 @@ def ennusta(img):
             vasak = kesk2
             parem = kesk1
 
-        tolerants = 20
+        tolerants = 16
         vahe = vasak[1] - parem[1]
 
         if vahe > tolerants:
@@ -184,8 +185,8 @@ if isCameraFound:
     cam = pygame.camera.Camera(0, (640, 480))
     cam.start()
     #pygame.image.save(cam.get_image(),"fbi_picture10.png")
-    nn_model = keras.models.load_model("nn")
-    gestures = ["palm", "fist", "thumb", "c", "undefined"]
+    #nn_model = keras.models.load_model("nn")
+    #gestures = ["palm", "fist", "thumb", "c", "undefined"]
     # gestures = ["palm", "L", "fist", "fist_moved", "thumb", "index", "ok", "palm_moved", "c", "down", "undefined"]
 
 
@@ -202,6 +203,7 @@ def süstladTeele():
 tuvastatud_käsk = "-"
 cam_frame_counter = 999
 
+"""
 class teeEnnustusEraldiThreadis(threading.Thread):
     def __init__(self, image):
         threading.Thread.__init__(self)
@@ -219,7 +221,7 @@ class teeEnnustusEraldiThreadis(threading.Thread):
         array = array.reshape((1, 120, 320, 1))
         predictions = nn_model.predict(np.array(array))
         tuvastatud_käsk = gestures[np.argmax(predictions) if np.max(predictions) > 0.9 else 10]
-
+"""
 
 
 while True:
@@ -469,7 +471,7 @@ while True:
 
         aken.blit(tekst_powerile, (48, 98))
 
-        if iteratsiooniLugeja % 7 == 0:
+        if iteratsiooniLugeja % 6 == 0:
             if hanerasvaProtsent < 1:
                 hanerasvaProtsent += 0.005
         iteratsiooniLugeja += 1
@@ -524,6 +526,7 @@ while True:
         tekst2 = mediumFont.render("2. Kogu maske.", False, (0, 0, 0))
         tekst3 = mediumFont.render("3. Poweri saadavuse korral hävita kõik viirused ekraanil.", False, (0, 0, 0))
         tekst4 = mediumFont.render("4. Skoor = elus_püsitud_sekundid + maskid * 15.", False, (0, 0, 0))
+
         tekst5 = smallerfont.render("Karl Taal", False, (0, 0, 0))
         tekst6 = smallerfont.render("Alex Viil", False, (0, 0, 0))
         tekst7 = smallerfont.render("Maria Pibilota Murumaa", False, (0, 0, 0))
@@ -536,18 +539,26 @@ while True:
         aken.blit(tekst10, (300 - tekst10.get_width() / 2, 420))
         """
 
-        tekst9 = mediumFont.render("Käsud: (hetkel ei tööta, praegu nooled ja enter nupp)", False, (0, 0, 0))
-        tekst10 = mediumFont.render("--> Liigu vasakule", False, (0, 0, 0))
-        tekst11 = mediumFont.render("--> Liigu paremale", False, (0, 0, 0))
-        tekst12 = mediumFont.render("--> Aktiveeri power käik", False, (0, 0, 0))
+        tekst9 = mediumFont.render("Käsud:", False, (0, 0, 0))
+        tekst10 = mediumFont.render("Kalluta pead vasakule --> Liigu vasakule", False, (0, 0, 0))
+        tekst11 = mediumFont.render("Kalluta pead paremale --> Liigu paremale", False, (0, 0, 0))
+        tekst12 = mediumFont.render("Ära lase nägu tuvastada --> Aktiveeri power käik", False, (0, 0, 0))
+        tekst13 = mediumFont.render("Juhtimine võib olla keeruline ja", False, (0, 0, 0))
+        tekst14 = mediumFont.render("seega soovitame harjutada enne testimise lehe peal :)", False, (0, 0, 0))
 
         aken.blit(tekst9, (10, 275))
+
+        """
         aken.blit(vasakuleFinger, (0, 315))
         aken.blit(paremaleFinger, (37, 375))
         aken.blit(ylesFinger, (30, 410))
-        aken.blit(tekst10, (145, 322))
-        aken.blit(tekst11, (145, 385))
-        aken.blit(tekst12, (145, 470))
+        """
+
+        aken.blit(tekst10, (10, 320))
+        aken.blit(tekst11, (10, 355))
+        aken.blit(tekst12, (10, 390))
+        aken.blit(tekst13, (10, 430))
+        aken.blit(tekst14, (10, 465))
 
         aken.blit(tekst1, (10, 100))
         aken.blit(tekst2, (10, 135))
