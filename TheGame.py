@@ -280,6 +280,7 @@ while True:
 
     # Mängu stseen -----------------------------------------------------------------------------------------------------
     if näita_mäng:
+        pygame.event.pump()
         if mehike_x + mehike_kiirus >= -3 and mehike_x + mehike_kiirus <= 565:  # Ei lase mehikesel aknast välja joosta
             mehike_x += mehike_kiirus
 
